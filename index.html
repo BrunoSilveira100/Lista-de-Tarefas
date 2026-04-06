@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lista de Tarefas – Exercício JS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <div class="badge">Exercício JavaScript</div>
+    <h1>Lista de<br/><span>Tarefas</span></h1>
+    <p class="subtitle">// manipulação do DOM</p>
+  </header>
+
+  <div class="container">
+
+    <!-- Área de input -->
+    <div class="input-area">
+      <input type="text" id="inputTarefa" placeholder="Digite uma nova tarefa..." maxlength="80" />
+      <button id="btnAdicionar">+ Adicionar</button>
+    </div>
+
+    <!-- Mensagem de erro (mostrar/ocultar via JS) -->
+    <p id="mensagemErro">⚠ Digite uma tarefa antes de adicionar.</p>
+
+    <!-- Contagem de tarefas -->
+    <div class="stats"><span id="contagem">0 tarefas</span></div>
+
+    <!-- Controles de filtro -->
+    <div class="filtros" aria-label="Filtros de tarefas">
+      <button class="filtro ativo" data-filter="all">Todas</button>
+      <button class="filtro" data-filter="ativas">Ativas</button>
+      <button class="filtro" data-filter="concluidas">Concluídas</button>
+    </div>
+
+    <!-- Lista de tarefas (itens criados via JS) -->
+    <ul id="listaTarefas"></ul>
+
+    <!-- Estado vazio -->
+    <div id="estadoVazio"><span class="empty-icon">📋</span>Nenhuma tarefa ainda.<br/>Adicione algo acima!</div>
+
+  </div>
+
+  <!-- Dica para os alunos -->
+  <div class="container hint-box">
+    <strong>📌 O que você precisa implementar</strong>
+    1. Função <code>adicionarTarefa()</code> – criar o &lt;li&gt; e inserir na lista<br/>
+    2. Função <code>toggleConcluida(item)</code> – alternar classe <code>.concluida</code><br/>
+    3. Função <code>removerTarefa(item)</code> – remover o elemento do DOM<br/>
+    4. Função <code>atualizarContagem()</code> – atualizar o texto de contagem<br/>
+    5. Validação – impedir tarefas vazias e exibir <code>#mensagemErro</code><br/>
+    6. <strong>Extra:</strong> salvar no <code>localStorage</code> e filtrar tarefas
+  </div>
+
+  <script>
+    // Referências ao DOM
+    const inputTarefa = document.getElementById('inputTarefa');
+    const btnAdicionar = document.getElementById('btnAdicionar');
+    const listaTarefas = document.getElementById('listaTarefas');
+    const mensagemErro = document.getElementById('mensagemErro');
+    const contagem = document.getElementById('contagem');
+    const estadoVazio = document.getElementById('estadoVazio');
+    const filtrosContainer = document.querySelector('.filtros');
+
+    // Estado
+    let tarefas = [];
+    const STORAGE_KEY = 'tarefas_app_v1';
+    let filtroAtivo = 'all';
+
+    // Eventos
+    btnAdicionar.addEventListener('click', adicionarTarefa);
+    inputTarefa.addEventListener('keydown', function (e) { if (e.key === 'Enter') adicionarTarefa(); });
+
+    filtrosContainer.addEventListener('click', function (e) {
+      const botao = e.target.closest('.filtro');
+      if (!botao) return;
+      const anterior = filtrosContainer.querySelector('.filtro.ativo');
+      if (anterior) anterior.classList.remove('ativo');
+      botao.classList.add('ativo');
+      filtroAtivo = botao.dataset.filter;
+      renderizar();
+    });
+
+    // localStorage
+    function salvarTarefas() { localStorage.setItem(STORAGE_KEY, JSON.stringify(tarefas)); }
+    function carregarTarefas() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return (tarefas = []);
+      try { tarefas = JSON.parse(raw) || []; } catch { tarefas = []; }
+    }
+
+    // Cria elemento li para a tarefa
+    function criarElementoTarefa(obj) {
+      const li = document.createElement('li');
+      li.className = 'tarefa-item' + (obj.done ? ' concluida' : '');
+      li.dataset.id = obj.id;
+
+      const check = document.createElement('div');
+      check.className = 'tarefa-check';
+      check.textContent = obj.done ? '✓' : '';
+
+      const texto = document.createElement('span');
+      texto.className = 'tarefa-texto';
+      texto.textContent = obj.text;
+
+      const btnRemover = document.createElement('button');
+      btnRemover.className = 'tarefa-remover';
+      btnRemover.textContent = '✕';
+
+      check.addEventListener('click', function (ev) { ev.stopPropagation(); toggleConcluida(obj.id); });
+      li.addEventListener('click', function (ev) { if (ev.target !== btnRemover) toggleConcluida(obj.id); });
+      btnRemover.addEventListener('click', function (ev) { ev.stopPropagation(); removerTarefa(obj.id); });
+
+      li.appendChild(check); li.appendChild(texto); li.appendChild(btnRemover);
+      return li;
+    }
+
+    function renderizar() {
+      listaTarefas.innerHTML = '';
+      const filtradas = tarefas.filter(function (t) {
+        if (filtroAtivo === 'all') return true;
+        if (filtroAtivo === 'ativas') return !t.done;
+        if (filtroAtivo === 'concluidas') return t.done;
+        return true;
+      });
+      filtradas.forEach(function (t) { listaTarefas.appendChild(criarElementoTarefa(t)); });
+      atualizarContagem();
+    }
+
+    function adicionarTarefa() {
+      const texto = inputTarefa.value.trim();
+      if (!texto) { mensagemErro.style.display = 'block'; inputTarefa.focus(); return; }
+      mensagemErro.style.display = 'none';
+      const nova = { id: Date.now().toString(), text: texto, done: false };
+      tarefas.push(nova); salvarTarefas();
+      if (filtroAtivo !== 'concluidas') listaTarefas.appendChild(criarElementoTarefa(nova));
+      inputTarefa.value = ''; inputTarefa.focus(); atualizarContagem();
+    }
+
+    function toggleConcluida(id) {
+      const idx = tarefas.findIndex(t => t.id === id); if (idx === -1) return;
+      tarefas[idx].done = !tarefas[idx].done; salvarTarefas(); renderizar();
+    }
+
+    function removerTarefa(id) {
+      const idx = tarefas.findIndex(t => t.id === id); if (idx === -1) return;
+      tarefas.splice(idx, 1); salvarTarefas(); renderizar();
+    }
+
+    function atualizarContagem() {
+      const total = listaTarefas.querySelectorAll('.tarefa-item').length;
+      const concluidas = listaTarefas.querySelectorAll('.tarefa-item.concluida').length;
+      contagem.textContent = `${total} tarefa${total !== 1 ? 's' : ''} · ${concluidas} concluída${concluidas !== 1 ? 's' : ''}`;
+      estadoVazio.style.display = total === 0 ? 'block' : 'none';
+    }
+
+    // Inicializa
+    carregarTarefas(); renderizar();
+  </script>
+
+</body>
+</html>

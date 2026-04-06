@@ -1,0 +1,74 @@
+:root {
+  --js-yellow: #F7DF1E;
+  --bg: #111;
+  --card: #1a1a1a;
+  --border: #2e2e2e;
+  --text: #f0f0f0;
+  --muted: #666;
+  --done: #444;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 16px;
+}
+
+header { text-align: center; margin-bottom: 40px; }
+
+.badge { display: inline-block; background: var(--js-yellow); color: #111; font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; padding: 4px 12px; border-radius: 2px; margin-bottom: 14px; text-transform: uppercase; }
+
+h1 { font-size: clamp(2rem, 6vw, 3.2rem); font-weight: 800; line-height: 1.1; letter-spacing: -1px; }
+h1 span { color: var(--js-yellow); }
+
+.subtitle { color: var(--muted); font-size: 14px; margin-top: 8px; font-family: 'Space Mono', monospace; }
+
+.container { width: 100%; max-width: 560px; }
+
+.input-area { display: flex; gap: 10px; margin-bottom: 12px; }
+
+#inputTarefa { flex: 1; background: var(--card); border: 1.5px solid var(--border); border-radius: 6px; padding: 14px 16px; color: var(--text); font-family: 'Syne', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s; }
+#inputTarefa:focus { border-color: var(--js-yellow); }
+#inputTarefa::placeholder { color: var(--muted); }
+
+#btnAdicionar { background: var(--js-yellow); color: #111; border: none; border-radius: 6px; padding: 14px 22px; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity 0.15s, transform 0.1s; white-space: nowrap; }
+#btnAdicionar:hover  { opacity: 0.85; }
+#btnAdicionar:active { transform: scale(0.97); }
+
+#mensagemErro { display: none; color: #ff6b6b; font-family: 'Space Mono', monospace; font-size: 12px; margin-bottom: 10px; padding-left: 4px; }
+
+.stats { display: flex; justify-content: space-between; align-items: center; padding: 0 2px; margin-bottom: 16px; }
+#contagem { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--muted); }
+
+#listaTarefas { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+
+.tarefa-item { background: var(--card); border: 1.5px solid var(--border); border-radius: 8px; display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; transition: border-color 0.2s, opacity 0.2s; animation: fadeIn 0.25s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+.tarefa-item:hover { border-color: #444; }
+.tarefa-item.concluida { opacity: 0.45; border-color: transparent; }
+.tarefa-item.concluida .tarefa-texto { text-decoration: line-through; color: var(--done); }
+
+.tarefa-check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; transition: background 0.2s, border-color 0.2s; }
+.tarefa-item.concluida .tarefa-check { background: var(--js-yellow); border-color: var(--js-yellow); color: #111; }
+.tarefa-texto { flex: 1; font-size: 15px; transition: color 0.2s; }
+
+.tarefa-remover { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 2px; border-radius: 4px; transition: color 0.15s; flex-shrink: 0; }
+.tarefa-remover:hover { color: #ff6b6b; }
+
+#estadoVazio { text-align: center; padding: 48px 0; color: var(--muted); font-family: 'Space Mono', monospace; font-size: 13px; line-height: 1.8; display: none; }
+#estadoVazio .empty-icon { font-size: 36px; margin-bottom: 12px; display: block; }
+
+.filtros { display: flex; gap: 8px; margin: 8px 0 18px 0; }
+.filtro { background: transparent; border: 1px solid var(--border); color: var(--muted); font-family: 'Space Mono', monospace; padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+.filtro.ativo { background: var(--js-yellow); color: #111; border-color: var(--js-yellow); }
+
+.hint-box { margin-top: 40px; border: 1.5px dashed var(--border); border-radius: 8px; padding: 20px; font-family: 'Space Mono', monospace; font-size: 12px; line-height: 1.8; color: var(--muted); }
+.hint-box strong { color: var(--js-yellow); display: block; margin-bottom: 8px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+.hint-box code { background: #222; padding: 1px 6px; border-radius: 3px; color: #e0e0e0; }
